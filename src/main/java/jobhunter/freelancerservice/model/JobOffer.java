@@ -16,5 +16,5 @@ public class JobOffer {
     private String employerId;
     private String employerName;
     private float hourSalaryAmount;
-    private boolean done;
+    private JobOfferStatus status;
 }

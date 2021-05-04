@@ -1,6 +1,7 @@
 package jobhunter.freelancerservice.kafka.listener;
 
 import jobhunter.freelancerservice.model.JobOffer;
+import jobhunter.freelancerservice.model.JobOfferStatus;
 import jobhunter.freelancerservice.service.jobOffer.JobOfferService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class JobOffersConsumer {
 //            @TopicPartition(topic = "jobs", partitionOffsets = @PartitionOffset(initialOffset = "0", partition = "0"))
 //    }, groupId = "group_joboffer_freelancer", containerFactory = "kafkaListenerContainerFactory")
     public void consumeJobOffer(JobOffer jobOffer) {
-        if (jobOffer.isDone()) {
+        if (jobOffer.getStatus() != JobOfferStatus.PENDING) {
             jobOfferService.removeJobOffer(jobOffer.getId());
             return;
         }
