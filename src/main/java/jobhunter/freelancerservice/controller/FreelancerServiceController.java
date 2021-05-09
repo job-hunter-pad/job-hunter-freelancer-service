@@ -28,6 +28,16 @@ public class FreelancerServiceController {
         this.freelancerApplicationService = freelancerApplicationService;
     }
 
+    @GetMapping("/{freelancerId}")
+    public List<JobApplication> getFreelancerApplications(@PathVariable String freelancerId) {
+        return freelancerApplicationService.getAllJobApplications(freelancerId);
+    }
+
+    @GetMapping("/{freelancerId}/{jobId}")
+    public List<JobApplication> getFreelancerApplicationsOfAJob(@PathVariable String freelancerId, @PathVariable String jobId) {
+        return freelancerApplicationService.getAllJobApplicationsOfAJob(freelancerId, jobId);
+    }
+
     @GetMapping("/activeJobs")
     public List<JobOffer> getAllActiveJobOffers() {
         return activeJobOffersService.getAllJobOffers();
@@ -56,16 +66,6 @@ public class FreelancerServiceController {
     @GetMapping("/inProgressJobs/{freelancerId}")
     public List<FreelancerJobOffer> getInProgressJobOffers(@PathVariable String freelancerId) {
         return freelancerApplicationService.getJobOffers(freelancerId, JobOfferStatus.IN_PROGRESS);
-    }
-
-    @GetMapping("/applications/{freelancerId}/{jobId}")
-    public List<JobApplication> getFreelancerApplicationsOfAJob(@PathVariable String freelancerId, @PathVariable String jobId) {
-        return freelancerApplicationService.getAllJobApplicationsOfAJob(freelancerId, jobId);
-    }
-
-    @GetMapping("/applications/{freelancerId}")
-    public List<JobApplication> getFreelancerApplications(@PathVariable String freelancerId) {
-        return freelancerApplicationService.getAllJobApplications(freelancerId);
     }
 
     @GetMapping("/appliedJobs/{freelancerId}")
