@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 public class JobOffer {
@@ -16,5 +18,6 @@ public class JobOffer {
     private String employerId;
     private String employerName;
     private float hourSalaryAmount;
+    private List<String> skills;
     private JobOfferStatus status;
 }
