@@ -2,28 +2,33 @@ package jobhunter.freelancerservice.kafka.listener;
 
 import jobhunter.freelancerservice.model.JobOffer;
 import jobhunter.freelancerservice.model.JobOfferStatus;
-import jobhunter.freelancerservice.service.jobOffer.JobOfferService;
+import jobhunter.freelancerservice.service.jobApplication.FreelancerApplicationService;
+import jobhunter.freelancerservice.service.jobOffer.ActiveJobOffersService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JobOffersConsumer {
 
-    private final JobOfferService jobOfferService;
+    private final ActiveJobOffersService activeJobOffersService;
+    private final FreelancerApplicationService freelancerApplicationService;
 
-    public JobOffersConsumer(JobOfferService jobOfferService) {
-        this.jobOfferService = jobOfferService;
+    public JobOffersConsumer(ActiveJobOffersService activeJobOffersService,
+                             FreelancerApplicationService freelancerApplicationService) {
+        this.activeJobOffersService = activeJobOffersService;
+        this.freelancerApplicationService = freelancerApplicationService;
     }
 
-    @KafkaListener(topics = "jobs", groupId = "group_joboffer_freelancer", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "jobs", groupId = "group_joboffer_freelancer", containerFactory = "jobOfferKafkaListenerContainerFactory")
 //    @KafkaListener(topicPartitions = {
 //            @TopicPartition(topic = "jobs", partitionOffsets = @PartitionOffset(initialOffset = "0", partition = "0"))
 //    }, groupId = "group_joboffer_freelancer", containerFactory = "kafkaListenerContainerFactory")
     public void consumeJobOffer(JobOffer jobOffer) {
+        freelancerApplicationService.updateJobOffer(jobOffer);
         if (jobOffer.getStatus() != JobOfferStatus.PENDING) {
-            jobOfferService.removeJobOffer(jobOffer.getId());
+            activeJobOffersService.removeJobOffer(jobOffer.getId());
             return;
         }
-        jobOfferService.updateJobOffer(jobOffer);
+        activeJobOffersService.updateJobOffer(jobOffer);
     }
 }

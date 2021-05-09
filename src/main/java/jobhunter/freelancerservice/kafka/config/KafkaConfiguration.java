@@ -23,7 +23,7 @@ import java.util.Map;
 public class KafkaConfiguration {
 
     @Bean
-    public ConsumerFactory<String, JobOffer> consumerFactory() {
+    public ConsumerFactory<String, JobOffer> jobOfferConsumerFactory() {
         Map<String, Object> config = new HashMap<>();
 
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
@@ -37,15 +37,35 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, JobOffer> kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, JobOffer> jobOfferKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, JobOffer> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
+        factory.setConsumerFactory(jobOfferConsumerFactory());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, JobApplication> jobApplicationsConsumerFactory() {
+        Map<String, Object> config = new HashMap<>();
+
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, "group_job_application_freelancer");
+        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+
+        JsonDeserializer<JobApplication> jobApplicationJsonDeserializer = new JsonDeserializer<>(JobApplication.class, false);
+        return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), jobApplicationJsonDeserializer);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, JobApplication> jobApplicationsKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, JobApplication> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(jobApplicationsConsumerFactory());
         return factory;
     }
 
 
     @Bean
-    public ProducerFactory<String, JobApplication> jobOfferProducerFactory() {
+    public ProducerFactory<String, JobApplication> jobApplicationProducerFactory() {
         Map<String, Object> config = new HashMap<>();
 
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
@@ -56,7 +76,7 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public KafkaTemplate<String, JobApplication> kafkaTemplate() {
-        return new KafkaTemplate<>(jobOfferProducerFactory());
+    public KafkaTemplate<String, JobApplication> jobApplicationsKafkaTemplate() {
+        return new KafkaTemplate<>(jobApplicationProducerFactory());
     }
 }
