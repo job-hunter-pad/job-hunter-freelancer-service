@@ -1,4 +1,4 @@
-# Job Hunter Employer Service
+# Job Hunter Freelancer Service
 
 ## Mappings
 
