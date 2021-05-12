@@ -1,6 +1,9 @@
 package jobhunter.freelancerservice.controller;
 
+import jobhunter.freelancerservice.controller.authorization.AuthTokenValidator;
 import jobhunter.freelancerservice.controller.dto.JobApplicationDTO;
+import jobhunter.freelancerservice.interceptor.AuthTokenHTTPInterceptor;
+import jobhunter.freelancerservice.interceptor.BearerExtractor;
 import jobhunter.freelancerservice.kafka.producer.JobApplicationsProducer;
 import jobhunter.freelancerservice.model.*;
 import jobhunter.freelancerservice.service.jobApplication.FreelancerApplicationService;
@@ -20,12 +23,19 @@ public class FreelancerServiceController {
     private final ActiveJobOffersService activeJobOffersService;
     private final FreelancerApplicationService freelancerApplicationService;
 
+    private final AuthTokenValidator authTokenValidator;
+    private final BearerExtractor bearerExtractor;
+
     public FreelancerServiceController(JobApplicationsProducer jobApplicationsProducer,
                                        ActiveJobOffersService activeJobOffersService,
-                                       FreelancerApplicationService freelancerApplicationService) {
+                                       FreelancerApplicationService freelancerApplicationService,
+                                       AuthTokenValidator authTokenValidator,
+                                       BearerExtractor bearerExtractor) {
         this.jobApplicationsProducer = jobApplicationsProducer;
         this.activeJobOffersService = activeJobOffersService;
         this.freelancerApplicationService = freelancerApplicationService;
+        this.authTokenValidator = authTokenValidator;
+        this.bearerExtractor = bearerExtractor;
     }
 
     @GetMapping("/{freelancerId}")
@@ -44,7 +54,12 @@ public class FreelancerServiceController {
     }
 
     @PostMapping("/apply")
-    public JobApplication applyToJob(@RequestBody JobApplicationDTO newJobApplication) {
+    public JobApplication applyToJob(@RequestBody JobApplicationDTO newJobApplication, @RequestHeader(AuthTokenHTTPInterceptor.AUTHORIZATION_HEADER) String header) {
+
+        if (!authTokenValidator.authorize(newJobApplication.getFreelancerId(), bearerExtractor.extract(header))) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
         Optional<JobApplication> freelancerApplicationsOptional = freelancerApplicationService.applyToJob(newJobApplication);
 
         if (freelancerApplicationsOptional.isEmpty()) {
@@ -75,7 +90,12 @@ public class FreelancerServiceController {
     }
 
     @PostMapping("/complete/{freelancerId}/{jobId}")
-    public JobApplication completeJobOffer(@PathVariable String freelancerId, @PathVariable String jobId) {
+    public JobApplication completeJobOffer(@PathVariable String freelancerId, @PathVariable String jobId, @RequestHeader(AuthTokenHTTPInterceptor.AUTHORIZATION_HEADER) String header) {
+
+        if (!authTokenValidator.authorize(freelancerId, bearerExtractor.extract(header))) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
         Optional<JobApplication> jobApplicationOptional = freelancerApplicationService.getAcceptedJobApplication(freelancerId, jobId);
         if (jobApplicationOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
