@@ -98,7 +98,26 @@ public class FreelancerServiceController {
 
         Optional<JobApplication> jobApplicationOptional = freelancerApplicationService.getAcceptedJobApplication(freelancerId, jobId);
         if (jobApplicationOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+            Optional<FreelancerJobsAndApplications> freelancerJobsAndApplications = freelancerApplicationService.getAppliedJobOffers(freelancerId);
+            if (freelancerJobsAndApplications.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+            List<FreelancerJobOffer> appliedJobOffers = freelancerJobsAndApplications.get().getAppliedJobOffers();
+            Optional<FreelancerJobOffer> freelancerJobOfferOptional = appliedJobOffers.stream().filter(freelancerJobOffer -> freelancerJobOffer.getJobOffer().getId().equals(jobId))
+                    .findFirst();
+            if (freelancerJobOfferOptional.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+            FreelancerJobOffer freelancerJobOffer = freelancerJobOfferOptional.get();
+            if (freelancerJobOffer.getJobOffer().getStatus().equals(JobOfferStatus.COMPLETED)) {
+                jobApplicationOptional = freelancerJobOffer.getApplications().stream()
+                        .filter(jobApplication -> !jobApplication.getStatus().equals(JobApplicationStatus.REJECTED))
+                        .findFirst();
+            }
+            if (jobApplicationOptional.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
         }
 
         JobApplication jobApplication = jobApplicationOptional.get();
