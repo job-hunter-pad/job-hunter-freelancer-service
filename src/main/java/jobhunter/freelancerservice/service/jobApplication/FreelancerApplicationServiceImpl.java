@@ -136,6 +136,13 @@ public class FreelancerApplicationServiceImpl implements FreelancerApplicationSe
             }
         }
 
+        if (jobApplication.getStatus().equals(JobApplicationStatus.ACCEPTED)) {
+            JobOffer jobOffer = freelancerJobOffer.getJobOffer();
+            if (jobOffer.getStatus().equals(JobOfferStatus.PENDING)) {
+                jobOffer.setStatus(JobOfferStatus.IN_PROGRESS);
+            }
+        }
+
         freelancerAppliedJobsRepository.save(freelancerJobsAndApplications);
     }
 
@@ -149,9 +156,9 @@ public class FreelancerApplicationServiceImpl implements FreelancerApplicationSe
             for (FreelancerJobOffer freelancerJobOffer : appliedJobOffers) {
                 if (freelancerJobOffer.getJobOffer().getId().equals(jobOffer.getId())) {
                     freelancerJobOffer.setJobOffer(jobOffer);
-                    freelancerAppliedJobsRepository.save(freelancerJobsAndApplications);
                 }
             }
+            freelancerAppliedJobsRepository.save(freelancerJobsAndApplications);
         }
     }
 
