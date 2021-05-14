@@ -129,7 +129,9 @@ public class FreelancerApplicationServiceImpl implements FreelancerApplicationSe
             JobApplication freelancerApplication = applications.get(i);
 
             if (freelancerApplication.getId().equals(jobApplication.getId())) {
-                applications.set(i, jobApplication);
+                if (freelancerApplication.getStatus().equals(JobApplicationStatus.PENDING) || jobApplication.getStatus().equals(JobApplicationStatus.COMPLETED)) {
+                    applications.set(i, jobApplication);
+                }
                 break;
             }
         }
