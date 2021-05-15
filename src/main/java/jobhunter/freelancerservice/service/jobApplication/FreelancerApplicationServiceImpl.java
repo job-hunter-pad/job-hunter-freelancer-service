@@ -3,6 +3,7 @@ package jobhunter.freelancerservice.service.jobApplication;
 import jobhunter.freelancerservice.controller.dto.JobApplicationDTO;
 import jobhunter.freelancerservice.model.*;
 import jobhunter.freelancerservice.repository.FreelancerAppliedJobsRepository;
+import jobhunter.freelancerservice.repository.JobApplicationsRepository;
 import jobhunter.freelancerservice.service.jobOffer.ActiveJobOffersService;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +16,14 @@ import java.util.stream.Collectors;
 public class FreelancerApplicationServiceImpl implements FreelancerApplicationService {
 
     private final FreelancerAppliedJobsRepository freelancerAppliedJobsRepository;
+    private final JobApplicationsRepository jobApplicationsRepository;
     private final ActiveJobOffersService activeJobOffersService;
 
-    public FreelancerApplicationServiceImpl(FreelancerAppliedJobsRepository freelancerAppliedJobsRepository, ActiveJobOffersService activeJobOffersService) {
+    public FreelancerApplicationServiceImpl(FreelancerAppliedJobsRepository freelancerAppliedJobsRepository,
+                                            JobApplicationsRepository jobApplicationsRepository,
+                                            ActiveJobOffersService activeJobOffersService) {
         this.freelancerAppliedJobsRepository = freelancerAppliedJobsRepository;
+        this.jobApplicationsRepository = jobApplicationsRepository;
         this.activeJobOffersService = activeJobOffersService;
     }
 
@@ -52,6 +57,8 @@ public class FreelancerApplicationServiceImpl implements FreelancerApplicationSe
                 freelancerId, jobApplicationDTO.getFreelancerName(), jobApplicationDTO.getHourSalaryAmount(),
                 jobApplicationDTO.getEstimatedProjectCompleteTime(), jobApplicationDTO.getMessage());
         FreelancerJobOffer freelancerJobOffer;
+
+        jobApplication = jobApplicationsRepository.save(jobApplication);
 
         if (jobOfferIndex >= 0) {
             freelancerJobOffer = appliedJobOffers.get(jobOfferIndex);

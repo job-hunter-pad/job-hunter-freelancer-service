@@ -2,11 +2,14 @@ package jobhunter.freelancerservice.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 
 @NoArgsConstructor
 @Data
 public class JobApplication {
+    @Id
     private String id;
+
     private String jobId;
     private String freelancerId;
     private String freelancerName;
