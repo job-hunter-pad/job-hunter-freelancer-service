@@ -110,7 +110,7 @@ public class FreelancerServiceController {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             }
             FreelancerJobOffer freelancerJobOffer = freelancerJobOfferOptional.get();
-            if (freelancerJobOffer.getJobOffer().getStatus().equals(JobOfferStatus.COMPLETED)) {
+            if (!freelancerJobOffer.getJobOffer().getStatus().equals(JobOfferStatus.PENDING)) {
                 jobApplicationOptional = freelancerJobOffer.getApplications().stream()
                         .filter(jobApplication -> !jobApplication.getStatus().equals(JobApplicationStatus.REJECTED))
                         .findFirst();
